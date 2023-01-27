@@ -1,7 +1,11 @@
 import pygame
 
-# Holds the current state of the game
-state = None
+# Holds the current state ID of the game
+state = 0
+
+MENU = 0
+INGAME = 1
+ADDWORD = 2
 
 
 def set_state(newstate):

@@ -3,6 +3,9 @@ import pygame
 
 import game_state
 from menu import MenuState
+from in_game import InGameState
+from add_word import AddWordState
+import time
 
 pygame.init()
 pygame.font.init()
@@ -15,7 +18,9 @@ FONTS = [
 
 screen = pygame.display.set_mode((980, 600))
 
-game_state.state = MenuState()
+game_state.state = 0
+prev_state_id = 0
+state = MenuState()
 
 
 def draw_background(surface: pygame.Surface):
@@ -23,22 +28,35 @@ def draw_background(surface: pygame.Surface):
 
 
 while True:
+    # Update state
+    if game_state.state != prev_state_id:
+        if game_state.state == game_state.MENU:
+            prev_state_id = game_state.MENU
+            state = MenuState()
+        elif game_state.state == game_state.INGAME:
+            prev_state_id = game_state.INGAME
+            state = InGameState()
+        elif game_state.state == game_state.ADDWORD:
+            prev_state_id = game_state.ADDWORD
+            state = AddWordState()
+        else:
+            print("Invalid state id:", game_state.state)
 
     # INPUT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            game_state.state.key_input(event)
+            state.key_input(event)
 
             # print(pygame.key.name(event.key))
 
     # LOGIC
-    game_state.state.update()
+    state.update()
 
     # RENDER
     draw_background(screen)
-    game_state.state.render(screen, FONTS)
+    state.render(screen, FONTS)
 
     # update screen
     pygame.display.flip()

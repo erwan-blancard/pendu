@@ -3,20 +3,18 @@ import pygame
 
 import game_state
 from game_state import GameState
-from in_game import InGameState
-from add_word import AddWordState
 
 from button import Button
 
 
 class MenuState(GameState):
-    buttons: list[Button] = []
-    current_button = 0
 
     def __init__(self):
+        self.current_button = 0
+        self.buttons = []
         self.buttons += [
-            Button("Jouer", 256, 72, lambda: game_state.set_state(InGameState())),
-            Button("Ajouter un mot...", 384, 72, lambda: game_state.set_state(AddWordState())),
+            Button("Jouer", 256, 72, lambda: game_state.set_state(game_state.INGAME)),
+            Button("Ajouter un mot...", 384, 72, lambda: game_state.set_state(game_state.ADDWORD)),
             Button("Quitter", 256, 72, lambda: sys.exit(0))
         ]
 

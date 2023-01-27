@@ -3,10 +3,6 @@ import text
 
 
 class Button:
-    label = ""
-    command = None
-    width = 0
-    height = 0
 
     def __init__(self, label, width, height, command=None):
         self.label = label
