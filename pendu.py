@@ -3,27 +3,28 @@ import pygame
 
 import game_state
 from menu import MenuState
-from in_game import InGameState
-from game_over import GameOverState
 
 pygame.init()
 pygame.font.init()
-FONT = pygame.font.SysFont("Arial", 48)
-screen = pygame.display.set_mode((980, 600))
 
-MENU = 0
-IN_GAME = 1
-GAME_OVER = 2
+FONTS = [
+    pygame.font.SysFont("Berlin Sans FB Demi", 32),
+    pygame.font.SysFont("Berlin Sans FB Demi", 48),
+    pygame.font.SysFont("Berlin Sans FB Demi", 72)
+]
+
+screen = pygame.display.set_mode((980, 600))
 
 game_state.state = MenuState()
 
 
-def draw_background(screen):
-    screen.fill((255, 255, 255))
+def draw_background(surface: pygame.Surface):
+    surface.fill((255, 255, 255))
 
 
 while True:
 
+    # INPUT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -32,11 +33,12 @@ while True:
 
             # print(pygame.key.name(event.key))
 
-    draw_background(screen)
-
-    # LOGIC AND RENDER
+    # LOGIC
     game_state.state.update()
-    game_state.state.render(screen, FONT)
+
+    # RENDER
+    draw_background(screen)
+    game_state.state.render(screen, FONTS)
 
     # update screen
     pygame.display.flip()
