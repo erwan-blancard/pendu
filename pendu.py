@@ -29,7 +29,7 @@ def draw_background(surface: pygame.Surface):
 
 while True:
     # Update state
-    if game_state.state != prev_state_id:
+    if game_state.state != prev_state_id or game_state.force_update:
         if game_state.state == game_state.MENU:
             prev_state_id = game_state.MENU
             state = MenuState()
@@ -41,6 +41,7 @@ while True:
             state = AddWordState()
         else:
             print("Invalid state id:", game_state.state)
+        game_state.force_update = False
 
     # INPUT
     for event in pygame.event.get():

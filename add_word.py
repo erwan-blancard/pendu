@@ -8,6 +8,7 @@ import text
 class AddWordState(GameState):
 
     def __init__(self):
+        super().__init__()
         self.word = ""
         self.message = ""
 

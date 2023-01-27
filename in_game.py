@@ -6,6 +6,7 @@ import game_state
 from game_state import GameState
 import text
 import random
+from button import Button
 
 
 def load_new_word():
@@ -23,7 +24,7 @@ def load_new_word():
 
 def render_overlay(screen):
     rect_over = pygame.Surface((screen.get_width(), screen.get_height()))
-    rect_over.set_alpha(178)
+    rect_over.set_alpha(200)
     rect_over.fill((255, 255, 255))
     screen.blit(rect_over, (0, 0))
 
@@ -31,6 +32,7 @@ def render_overlay(screen):
 class InGameState(GameState):
 
     def __init__(self):
+        super().__init__()
         self.word_to_find = load_new_word()
         self.blank_word = ""
         for i in range(len(self.word_to_find)):
@@ -42,22 +44,35 @@ class InGameState(GameState):
         self.endgame = False
         self.endgame_timer = 0
 
+        self.paused = False
+
+        # pause menu buttons
+        self.buttons += [
+            Button("Continuer", 980 / 2 - 128, 600 / 2, 256, 72, lambda: self.close_pause_menu()),
+            Button("Recommencer", 980 / 2 - 172, 600 / 2 + 84, 344, 72, lambda: game_state.set_state(game_state.INGAME, force=True)),
+            Button("Quitter", 980 / 2 - 128, 600 / 2 + 168, 256, 72, lambda: game_state.set_state(game_state.MENU))
+        ]
+
         for i in range(10):
             frame = pygame.image.load("res/part_"+str(i)+".png")
             frame = pygame.transform.scale(frame, (300, 300))
             self.frames += [frame]
 
+    def close_pause_menu(self):
+        self.paused = False
+
     def update(self):
+        super().update()
         if self.endgame:
             if time.time() >= self.endgame_timer + 3:
-                game_state.set_state(game_state.MENU)
+                game_state.set_state(game_state.INGAME, force=True)
         else:
             if self.errors_count >= len(self.frames)-1:
-                self.endgame_message = "Perdu ! Le mot à trouver était " + self.word_to_find + " !"
+                self.endgame_message = "Perdu ! Le mot à trouver était: " + self.word_to_find + " !"
                 self.endgame = True
                 self.endgame_timer = time.time()
             if self.blank_word == self.word_to_find:
-                self.endgame_message = "Bravo ! Le mot était bien "+self.word_to_find+" !"
+                self.endgame_message = "Bravo ! Le mot était bien: "+self.word_to_find+" !"
                 self.endgame = True
                 self.endgame_timer = time.time()
 
@@ -77,39 +92,51 @@ class InGameState(GameState):
 
         if self.endgame:
             render_overlay(screen)
-            text.draw_centered_text(self.endgame_message, screen.get_width()/2, screen.get_height() / 2, screen, fonts[1], (28, 207, 0))
+            text.draw_centered_text(self.endgame_message, screen.get_width()/2, screen.get_height() / 2 - 32, screen, fonts[1], (28, 207, 0))
+        elif self.paused:
+            render_overlay(screen)
+            super().render(screen, fonts)
 
     def key_input(self, event):
         if not self.endgame:
-            inputed_letter = pygame.key.name(event.key)
-            is_letter = False
-            for letter in "abcdefghijklmnopqrstuvwxyz":
-                if inputed_letter == letter:
-                    is_letter = True
-                    break
-            if is_letter:
-                # check if letter has already been typed (is in failed_letters)
-                already_typed = False
-                for letter in self.failed_letters:
+            if event.key == pygame.key.key_code("escape"):
+                if self.paused:
+                    self.paused = False
+                else:
+                    self.paused = True
+
+            if self.paused:
+                super().key_input(event)
+            else:
+                inputed_letter = pygame.key.name(event.key)
+                is_letter = False
+                for letter in "abcdefghijklmnopqrstuvwxyz":
                     if inputed_letter == letter:
-                        already_typed = True
+                        is_letter = True
                         break
-                if not already_typed:
-                    has_found_letter = False
-                    i = 0
-                    # finds the letter
-                    while i < len(self.word_to_find):
-                        if self.word_to_find[i] == inputed_letter:
-                            has_found_letter = True
+                if is_letter:
+                    # check if letter has already been typed (is in failed_letters)
+                    already_typed = False
+                    for letter in self.failed_letters:
+                        if inputed_letter == letter:
+                            already_typed = True
                             break
-                        i += 1
-                    if not has_found_letter:
-                        self.errors_count += 1
-                        self.failed_letters += inputed_letter
-                    else:
-                        # rebuilds the blank_word
+                    if not already_typed:
+                        has_found_letter = False
+                        i = 0
+                        # finds the letter
                         while i < len(self.word_to_find):
-                            if self.word_to_find[i] == inputed_letter and self.blank_word != inputed_letter:
-                                tmp = self.blank_word[:i] + inputed_letter + self.blank_word[i+1:]
-                                self.blank_word = tmp
+                            if self.word_to_find[i] == inputed_letter:
+                                has_found_letter = True
+                                break
                             i += 1
+                        if not has_found_letter:
+                            self.errors_count += 1
+                            self.failed_letters += inputed_letter
+                        else:
+                            # rebuilds the blank_word
+                            while i < len(self.word_to_find):
+                                if self.word_to_find[i] == inputed_letter and self.blank_word != inputed_letter:
+                                    tmp = self.blank_word[:i] + inputed_letter + self.blank_word[i+1:]
+                                    self.blank_word = tmp
+                                i += 1
