@@ -95,6 +95,7 @@ class InGameState(GameState):
             text.draw_centered_text(self.endgame_message, screen.get_width()/2, screen.get_height() / 2 - 32, screen, fonts[1], (28, 207, 0))
         elif self.paused:
             render_overlay(screen)
+            text.draw_centered_text("PAUSE", screen.get_width()/2, 128, screen, fonts[2])
             super().render(screen, fonts)
 
     def key_input(self, event):
@@ -103,6 +104,7 @@ class InGameState(GameState):
                 if self.paused:
                     self.paused = False
                 else:
+                    self.current_button = 0
                     self.paused = True
 
             if self.paused:
