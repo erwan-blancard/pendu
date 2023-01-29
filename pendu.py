@@ -5,7 +5,6 @@ import game_state
 from menu import MenuState
 from in_game import InGameState
 from add_word import AddWordState
-import time
 
 pygame.init()
 pygame.font.init()
@@ -17,6 +16,8 @@ FONTS = [
 ]
 
 screen = pygame.display.set_mode((980, 600))
+
+pygame.display.set_caption("Pendu")
 
 game_state.state = 0
 prev_state_id = 0
@@ -47,10 +48,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        if event.type == pygame.KEYDOWN:
-            state.key_input(event)
-
-            # print(pygame.key.name(event.key))
+        state.key_input(event)
 
     # LOGIC
     state.update()

@@ -36,24 +36,35 @@ class GameState:
 
             self.buttons[i].render(screen, fonts)
 
-    def key_input(self, event):
+    def key_input(self, event: pygame.event.Event):
         # button inputs
-        if event.key == pygame.key.key_code("up"):
-            if 0 <= self.current_button < len(self.buttons):
-                if self.current_button - 1 < 0:
-                    self.current_button = len(self.buttons) - 1
+
+        # mouse
+        mouse_pos = pygame.mouse.get_pos()
+        for i in range(len(self.buttons)):
+            if (self.buttons[i].x <= mouse_pos[0] <= self.buttons[i].x + self.buttons[i].width) and (self.buttons[i].y <= mouse_pos[1] <= self.buttons[i].y + self.buttons[i].height):
+                self.current_button = i
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
+                    self.buttons[i].execute()
+
+        # keys
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.key.key_code("up"):
+                if 0 <= self.current_button < len(self.buttons):
+                    if self.current_button - 1 < 0:
+                        self.current_button = len(self.buttons) - 1
+                    else:
+                        self.current_button -= 1
                 else:
-                    self.current_button -= 1
-            else:
-                self.current_button = 0
-        elif event.key == pygame.key.key_code("down"):
-            if 0 <= self.current_button < len(self.buttons):
-                if self.current_button + 1 >= len(self.buttons):
                     self.current_button = 0
+            elif event.key == pygame.key.key_code("down"):
+                if 0 <= self.current_button < len(self.buttons):
+                    if self.current_button + 1 >= len(self.buttons):
+                        self.current_button = 0
+                    else:
+                        self.current_button += 1
                 else:
-                    self.current_button += 1
-            else:
-                self.current_button = 0
-        elif event.key == pygame.key.key_code("return"):
-            if 0 <= self.current_button < len(self.buttons):
-                self.buttons[self.current_button].execute()
+                    self.current_button = 0
+            elif event.key == pygame.key.key_code("return"):
+                if 0 <= self.current_button < len(self.buttons):
+                    self.buttons[self.current_button].execute()

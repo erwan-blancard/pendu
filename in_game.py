@@ -100,45 +100,45 @@ class InGameState(GameState):
 
     def key_input(self, event):
         if not self.endgame:
-            if event.key == pygame.key.key_code("escape"):
-                if self.paused:
-                    self.paused = False
-                else:
-                    self.current_button = 0
-                    self.paused = True
-
             if self.paused:
                 super().key_input(event)
-            else:
-                inputed_letter = pygame.key.name(event.key)
-                is_letter = False
-                for letter in "abcdefghijklmnopqrstuvwxyz":
-                    if inputed_letter == letter:
-                        is_letter = True
-                        break
-                if is_letter:
-                    # check if letter has already been typed (is in failed_letters)
-                    already_typed = False
-                    for letter in self.failed_letters:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.key.key_code("escape"):
+                    if self.paused:
+                        self.paused = False
+                    else:
+                        self.current_button = 0
+                        self.paused = True
+                else:
+                    inputed_letter = pygame.key.name(event.key)
+                    is_letter = False
+                    for letter in "abcdefghijklmnopqrstuvwxyz":
                         if inputed_letter == letter:
-                            already_typed = True
+                            is_letter = True
                             break
-                    if not already_typed:
-                        has_found_letter = False
-                        i = 0
-                        # finds the letter
-                        while i < len(self.word_to_find):
-                            if self.word_to_find[i] == inputed_letter:
-                                has_found_letter = True
+                    if is_letter:
+                        # check if letter has already been typed (is in failed_letters)
+                        already_typed = False
+                        for letter in self.failed_letters:
+                            if inputed_letter == letter:
+                                already_typed = True
                                 break
-                            i += 1
-                        if not has_found_letter:
-                            self.errors_count += 1
-                            self.failed_letters += inputed_letter
-                        else:
-                            # rebuilds the blank_word
+                        if not already_typed:
+                            has_found_letter = False
+                            i = 0
+                            # finds the letter
                             while i < len(self.word_to_find):
-                                if self.word_to_find[i] == inputed_letter and self.blank_word != inputed_letter:
-                                    tmp = self.blank_word[:i] + inputed_letter + self.blank_word[i+1:]
-                                    self.blank_word = tmp
+                                if self.word_to_find[i] == inputed_letter:
+                                    has_found_letter = True
+                                    break
                                 i += 1
+                            if not has_found_letter:
+                                self.errors_count += 1
+                                self.failed_letters += inputed_letter
+                            else:
+                                # rebuilds the blank_word
+                                while i < len(self.word_to_find):
+                                    if self.word_to_find[i] == inputed_letter and self.blank_word != inputed_letter:
+                                        tmp = self.blank_word[:i] + inputed_letter + self.blank_word[i+1:]
+                                        self.blank_word = tmp
+                                    i += 1

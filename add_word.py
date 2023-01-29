@@ -22,27 +22,28 @@ class AddWordState(GameState):
         text.draw_centered_text(self.message, screen.get_width()/2, screen.get_height()/2 + 84, screen, fonts[0], (255, 0, 0))
 
     def key_input(self, event):
-        inputed_letter = pygame.key.name(event.key)
-        if inputed_letter == "escape":
-            game_state.set_state(game_state.MENU)
-        elif inputed_letter == "return":
-            if len(self.word) < 4:
-                self.message = "Le mot doit contenir au moins 4 lettres !"
+        if event.type == pygame.KEYDOWN:
+            inputed_letter = pygame.key.name(event.key)
+            if inputed_letter == "escape":
+                game_state.set_state(game_state.MENU)
+            elif inputed_letter == "return":
+                if len(self.word) < 4:
+                    self.message = "Le mot doit contenir au moins 4 lettres !"
+                else:
+                    try:
+                        file = open("mots.txt", "a")
+                        file.write("\n" + self.word)
+                        file.close()
+                        game_state.set_state(game_state.MENU)
+                    except IOError as e:
+                        self.message = str(e)
+            elif inputed_letter == "backspace":
+                self.word = self.word[:-1]
             else:
-                try:
-                    file = open("mots.txt", "a")
-                    file.write("\n" + self.word)
-                    file.close()
-                    game_state.set_state(game_state.MENU)
-                except IOError as e:
-                    self.message = str(e)
-        elif inputed_letter == "backspace":
-            self.word = self.word[:-1]
-        else:
-            is_letter = False
-            for letter in "abcdefghijklmnopqrstuvwxyz":
-                if inputed_letter == letter:
-                    is_letter = True
-                    break
-            if is_letter:
-                self.word += inputed_letter
+                is_letter = False
+                for letter in "abcdefghijklmnopqrstuvwxyz":
+                    if inputed_letter == letter:
+                        is_letter = True
+                        break
+                if is_letter:
+                    self.word += inputed_letter
